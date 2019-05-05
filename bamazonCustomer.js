@@ -41,35 +41,75 @@ function inquirerProduct() {
       name: "quantity",
       message: "How many units would you like?"
     }
-  //establish which item they are refering to
+  //Now we establish the variables from the databse
   ]).then(function(data) {
+    var itemID;
     var chosenItem;
     var itemQuantity;
     var itemPriceRaw;
     var itemPrice;
+    //this for loop will match the item and the database id
     for (var i = 0; i < results.length; i++) {
        if (results[i].id === parseInt(data.itemID)) {
-       chosenItem = results[i].id;
+      //now we match the rest of the data to JS variables (we convert the item price to decimals with the toFixed function)
+       chosenItem = results[i];
+       itemID = results[i].id;
        itemQuantity = results[i].stock_quantity;
        itemPriceRaw = results[i].price;
        itemPrice = itemPriceRaw.toFixed(2);
       } 
     } 
+    //this 'if' statement will varify that there is enough stock on the database
       if (itemQuantity < parseInt(data.quantity)) {
         console.log("Sorry, we do not have enough in stock.")
       } else {
         console.log("Your order total is $" + (itemPrice *= (parseInt(data.quantity))));
-      }
+        //now we update the database
+      }  
+      var query = connection.query(
+        "UPDATE products SET ? WHERE ?",
+        [
+          {
+            stock_quantity: itemQuantity - (parseInt(data.quantity))
+          },
+          {
+            id: itemID
+          }
+        ], 
+      ); 
+      checkQuantity(chosenItem);
     });
-    connection.end();
+
   });
 }
 
+//recheck stock quantity and end connection
+function checkQuantity(chosenItem){
+  connection.query("SELECT * FROM products", function(err, results) {
+    if (err) throw err;
+    console.log ("Updated Stock Quantity: " + chosenItem.product_name + ": " + chosenItem.stock_quantity)
+  });
+  connection.end();
+}
 
+// //this function will update the database 
+// function updateProduct(item, quantity) {
+//   var query = connection.query(
+//     "UPDATE products SET ? WHERE ?",
+//     [
+//       {
+//         stock_quantity: itemQuantity - (parseInt(data.quantity))
+//       },
+//       {
+//         item_id: chosenItem
+//       }
+//     ],
+//     function(err, res) {
+//       console.log(itemQuantity);
 
-
-
-
+//     }
+//   );
+//   }
 
 //this will print all items and the department
   function start() {
@@ -81,7 +121,8 @@ function inquirerProduct() {
       for (var i = 0; i < res.length; i++) {
           console.log (res[i].id + ".) " +
         "Item: " + res[i].product_name + "\n" +
-          " Department: " + res[i].department_name + "\n");
+          " Department: " + res[i].department_name + "\n" +
+          " Stock Quantity: " + res[i].stock_quantity + "\n");
       }
       inquirerProduct();
     });
