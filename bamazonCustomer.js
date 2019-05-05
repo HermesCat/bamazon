@@ -23,9 +23,6 @@ connection.connect(function(err) {
     start();
   });
 
-
-
-
 //users can choose an item from the list
 function inquirerProduct() {
   connection.query("SELECT * FROM products", function(err, results) {
@@ -83,33 +80,32 @@ function inquirerProduct() {
   });
 }
 
-//recheck stock quantity and end connection
+//recheck stock quantity
 function checkQuantity(chosenItem){
   connection.query("SELECT * FROM products", function(err, results) {
     if (err) throw err;
-    console.log ("Updated Stock Quantity: " + chosenItem.product_name + ": " + chosenItem.stock_quantity)
   });
-  connection.end();
+  console.log ("Updated Stock Quantity: " + chosenItem.product_name + ": " + chosenItem.stock_quantity)
+  continueShopping()
 }
 
-// //this function will update the database 
-// function updateProduct(item, quantity) {
-//   var query = connection.query(
-//     "UPDATE products SET ? WHERE ?",
-//     [
-//       {
-//         stock_quantity: itemQuantity - (parseInt(data.quantity))
-//       },
-//       {
-//         item_id: chosenItem
-//       }
-//     ],
-//     function(err, res) {
-//       console.log(itemQuantity);
-
-//     }
-//   );
-//   }
+//ask if users would like to continue shopping
+function continueShopping() {
+  inquirer.prompt([
+    {
+      type: "list",
+      name: "continue",
+      message: "Would you like to continue shopping?",
+      choices: ["Yes", "No"]
+    }
+  ]).then(function(data) {
+    if (data.continue === "Yes") {
+      start();
+    } else {
+      connection.end();
+    }
+  });
+}
 
 //this will print all items and the department
   function start() {
