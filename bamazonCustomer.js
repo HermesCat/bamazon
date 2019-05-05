@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Hermes1Cat",
+  password: "password",
   database: "bamazon"
 });
 
@@ -61,8 +61,7 @@ function inquirerProduct() {
         console.log("Sorry, we do not have enough in stock.")
       } else {
         console.log("Your order total is $" + (itemPrice *= (parseInt(data.quantity))));
-        //now we update the database
-      }  
+    //now we update the database
       var query = connection.query(
         "UPDATE products SET ? WHERE ?",
         [
@@ -74,6 +73,7 @@ function inquirerProduct() {
           }
         ], 
       ); 
+  }
       checkQuantity(chosenItem);
     });
 
