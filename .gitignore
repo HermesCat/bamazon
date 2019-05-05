@@ -1,3 +1,4 @@
 node_modules/
 .inquirer
 .mysql
+.DS_Store

@@ -23,6 +23,55 @@ connection.connect(function(err) {
     start();
   });
 
+
+
+
+//users can choose an item from the list
+function inquirerProduct() {
+  connection.query("SELECT * FROM products", function(err, results) {
+    if (err) throw err;
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "itemID",
+      message: "What is the ID of the product you would like to buy?"
+    },
+    {
+      type: "input",
+      name: "quantity",
+      message: "How many units would you like?"
+    }
+  //establish which item they are refering to
+  ]).then(function(data) {
+    var chosenItem;
+    var itemQuantity;
+    var itemPriceRaw;
+    var itemPrice;
+    for (var i = 0; i < results.length; i++) {
+       if (results[i].id === parseInt(data.itemID)) {
+       chosenItem = results[i].id;
+       itemQuantity = results[i].stock_quantity;
+       itemPriceRaw = results[i].price;
+       itemPrice = itemPriceRaw.toFixed(2);
+      } 
+    } 
+      if (itemQuantity < parseInt(data.quantity)) {
+        console.log("Sorry, we do not have enough in stock.")
+      } else {
+        console.log("Your order total is $" + (itemPrice *= (parseInt(data.quantity))));
+      }
+    });
+    connection.end();
+  });
+}
+
+
+
+
+
+
+
+//this will print all items and the department
   function start() {
     console.log("Selecting all products...\n");
     connection.query("SELECT * FROM products", 
@@ -34,7 +83,7 @@ connection.connect(function(err) {
         "Item: " + res[i].product_name + "\n" +
           " Department: " + res[i].department_name + "\n");
       }
-      connection.end();
+      inquirerProduct();
     });
   }
   
